@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from app.auth.models import AuthUser
+from app.common.fields import UserByEmail
 from app.common.security.jwt import JWTProvider
 
 
@@ -26,22 +27,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return JWTProvider().encode(user)
 
 
-class AuthUserByEmail:
-    requires_context = True
-
-    def __call__(self, serializer_field):
-        try:
-            return AuthUser.objects.get(
-                email=serializer_field.root.initial_data["email"]
-            )
-        except AuthUser.DoesNotExist:
-            raise ValidationError("Invalid Email!")
-
-
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
-    user = serializers.HiddenField(default=AuthUserByEmail())
+    user = serializers.HiddenField(default=UserByEmail())
 
     def validate(self, attrs):
         if not check_password(attrs["password"], attrs["user"].password):
