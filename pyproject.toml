@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "django-app"
+version = "0.1.0"
+description = "Django Application for Server Performance Testing"
+authors = ["miintto <miintto.log@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "4.2"
+djangorestframework = "^3.15.2"
+ecs-logging = "^2.2.0"
+gunicorn = "^22.0.0"
+psycopg2 = "^2.9.9"
+pyjwt = "^2.8.0"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

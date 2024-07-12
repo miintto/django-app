@@ -1,0 +1,32 @@
+# == Gitignore Files == #
+
+# Virtual Environment
+venv/
+.venv/
+
+# Cache Files
+__pycache__/
+*.pyc
+
+# Env Value File
+.env*
+!.env.example
+
+# Log Files
+logs/
+*.log
+
+# Local Settings
+*/settings/local.py
+
+# Test & Coverage
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Editor Setting Files (Pycharm, VSCode ...)
+.idea/
+.vscode/
+
+# MacOS System Files
+.DS_Store
