@@ -57,13 +57,47 @@ class OrderTest(TestCase):
             ],
         }
         with self.assertNumQueries(10):
-            response = self.client.post(
-                "/orders",
-                data=json.dumps(payload),
-                content_type="application/json",
-            )
+            response = self.client.post("/orders", data=json.dumps(payload))
         self.assertEqual(response.status_code, 200)
         return response.json()
+
+    def test_재고_없이_주문시_실패(self):
+        self.client.force_login(self.user)
+
+        payload = {
+            "order_number": "test",
+            "product_id": self.product.pk,
+            "items": [
+                {"item_id": self.item1.pk, "quantity": 0},
+                {"item_id": self.item2.pk, "quantity": 1},
+            ],
+        }
+        response = self.client.post("/orders", data=json.dumps(payload))
+        self.assertEqual(response.status_code, 400)
+
+    def test_품목_없이_주문시_실패(self):
+        self.client.force_login(self.user)
+
+        payload = {
+            "order_number": "test", "product_id": self.product.pk, "items": []
+        }
+        response = self.client.post("/orders", data=json.dumps(payload))
+        self.assertEqual(response.status_code, 400)
+
+    def test_동일한_주문번호로_주문시_실패(self):
+        self.client.force_login(self.user)
+        order = self.test_주문()
+
+        payload = {
+            "order_number": order["order_number"],
+            "product_id": self.product.pk,
+            "items": [
+                {"item_id": self.item1.pk, "quantity": 1},
+                {"item_id": self.item2.pk, "quantity": 1},
+            ],
+        }
+        response = self.client.post("/orders", data=json.dumps(payload))
+        self.assertEqual(response.status_code, 400)
 
     def test_주문_조회(self):
         order = self.test_주문()

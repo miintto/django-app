@@ -1,9 +1,12 @@
 from django.test import TestCase
 
 from app.product.models import Product, ProductItem
+from .base import TestClient
 
 
 class ProductTest(TestCase):
+    client_class = TestClient
+
     def setUp(self):
         super().setUp()
         product = Product.objects.create(name="상품1")
