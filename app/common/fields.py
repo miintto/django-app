@@ -22,7 +22,7 @@ class UserFromRequestField(Field):
         try:
             return AuthUser.objects.get(pk=self.context["request"].user.id)
         except AuthUser.DoesNotExist:
-            raise ValidationError("Invalid Email!")
+            raise ValidationError("Invalid User!")
 
     def to_internal_value(self, data):
         return data

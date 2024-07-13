@@ -30,4 +30,4 @@ class UserCredential:
 
     @property
     def permission(self) -> UserPermission:
-        return UserPermission[self._permission]
+        return UserPermission(self._permission)

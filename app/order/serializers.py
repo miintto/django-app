@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from app.common.fields import UserFromRequestField
 from app.product.mixins import Product
@@ -8,6 +9,11 @@ from .models import Order, OrderItem
 class OrderItemParamSerializer(serializers.Serializer):
     item_id = serializers.IntegerField(required=True)
     quantity = serializers.IntegerField(required=True)
+
+    def validate_quantity(self, value):
+        if value <= 0:
+            raise ValidationError("`quantity` must be bigger than zero.")
+        return value
 
 
 class OrderParamSerializer(serializers.ModelSerializer):
@@ -21,9 +27,21 @@ class OrderParamSerializer(serializers.ModelSerializer):
         model = Order
         fields = ("order_number", "product_id", "user", "items")
 
-    def create(self, validated_data):
-        validated_data.pop("items")
-        return super().create(validated_data)
+    def validate_items(self, value):
+        if len(value) == 0:
+            raise ValidationError(
+                "The `items` list must contain at least one item."
+            )
+        return value
+
+    def create(self, validated_data) -> Order:
+        items = validated_data.pop("items")
+        order = super().create(validated_data)
+
+        order.items = order.create_items(items)
+        order.status = Order.OrderStatus.COMPLETED
+        order.save(update_fields=["status"])
+        return order
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

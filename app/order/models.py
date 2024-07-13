@@ -27,27 +27,24 @@ class Order(models.Model):
     class Meta:
         db_table = "tb_order"
 
-    def create_items(self, items: list):
-        with transaction.atomic():
-            Product.objects.select_for_update().get(pk=self.product_id)
-            item_map = {
-                it["item_id"]: {"quantity": it["quantity"]} for it in items
-            }
-            for item in ProductItem.objects.filter(pk__in=item_map.keys()):
-                if item.item_quantity <= item.sold_quantity:
-                    raise
-                item_map[item.pk]["price"] = item.price
+    @transaction.atomic
+    def create_items(self, items: list[dict]) -> list["OrderItem"]:
+        Product.objects.select_for_update().get(pk=self.product_id)
+        item_map = {
+            it["item_id"]: {"quantity": it["quantity"]} for it in items
+        }
+        for item in ProductItem.objects.filter(pk__in=item_map.keys()):
+            if item.item_quantity <= item.sold_quantity:
+                raise ValueError("")
+            item_map[item.pk]["price"] = item.price
 
-            self.items = OrderItem.objects.bulk_create(
-                [
-                    OrderItem(order=self, item_id=item_id, price=data["price"])
-                    for item_id, data in item_map.items()
-                    for _ in range(data["quantity"])
-                ]
-            )
-
-        self.status = self.OrderStatus.COMPLETED
-        self.save(update_fields=["status"])
+        return OrderItem.objects.bulk_create(
+            [
+                OrderItem(order=self, item_id=item_id, price=data["price"])
+                for item_id, data in item_map.items()
+                for _ in range(data["quantity"])
+            ]
+        )
 
 
 class OrderItem(models.Model):

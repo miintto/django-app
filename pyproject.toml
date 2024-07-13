@@ -16,6 +16,9 @@ pyjwt = "^2.8.0"
 python-dotenv = "^1.0.1"
 
 
+[tool.poetry.group.dev.dependencies]
+coverage = "^7.6.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

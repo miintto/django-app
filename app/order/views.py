@@ -14,7 +14,6 @@ class OrderView(OrderMixin, GenericAPIView):
         )
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
-        order.create_items(serializer.validated_data["items"])
         return Response(data=self.get_serializer(order).data, status=200)
 
 
