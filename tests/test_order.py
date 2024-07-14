@@ -42,9 +42,11 @@ class OrderTest(TestCase):
             5. SAVEPOINT "s8497511104_x8"
             6. SELECT * FROM tb_product WHERE id = {product_id} FOR UPDATE
             7. SELECT * FROM tb_product_item WHERE id IN ( ... )
-            8. INSERT INTO tb_order_item ( ... ) RETURNING id
-            9. RELEASE SAVEPOINT "s8497511104_x8"
-            10. UPDATE tb_order SET status = 'COMPLETED' WHERE id = {order_id}
+            8. UPDATE tb_product_item SET sold_quantity = {quantity} WHERE id = {item_id}
+            9. UPDATE tb_product_item SET sold_quantity = {quantity} WHERE id = {item_id}
+            10. RELEASE SAVEPOINT "s8497511104_x8"
+            11. INSERT INTO tb_order_item ( ... ) RETURNING id
+            12. UPDATE tb_order SET status = 'COMPLETED' WHERE id = {order_id}
         """
         self.client.force_login(self.user)
 
@@ -56,7 +58,7 @@ class OrderTest(TestCase):
                 {"item_id": self.item2.pk, "quantity": 2},
             ],
         }
-        with self.assertNumQueries(10):
+        with self.assertNumQueries(12):
             response = self.client.post("/orders", data=json.dumps(payload))
         self.assertEqual(response.status_code, 200)
         return response.json()

@@ -28,16 +28,18 @@ class Order(models.Model):
     class Meta:
         db_table = "tb_order"
 
-    @transaction.atomic
     def create_items(self, items: list[dict]) -> list["OrderItem"]:
-        Product.objects.select_for_update().get(pk=self.product_id)
-        item_map = {
-            it["item_id"]: {"quantity": it["quantity"]} for it in items
-        }
-        for item in ProductItem.objects.filter(pk__in=item_map.keys()):
-            if item.item_quantity <= item.sold_quantity:
-                raise ValidationError("Out of stock!")
-            item_map[item.pk]["price"] = item.price
+        with transaction.atomic():
+            Product.objects.select_for_update().get(pk=self.product_id)
+            item_map = {
+                it["item_id"]: {"quantity": it["quantity"]} for it in items
+            }
+            for item in ProductItem.objects.filter(pk__in=item_map.keys()):
+                if item.item_quantity <= item.sold_quantity:
+                    raise ValidationError("Out of stock!")
+                item_map[item.pk]["price"] = item.price
+                item.sold_quantity += item_map[item.pk]["quantity"]
+                item.save(update_fields=["sold_quantity"])
 
         return OrderItem.objects.bulk_create(
             [
