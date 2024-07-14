@@ -38,4 +38,4 @@ RUN apt-get -y update \
 COPY --from=build /usr/src/venv /usr/src/venv
 COPY ./app /usr/src/app
 
-CMD ["gunicorn", "--workers", "3", "--bind",  "0.0.0.0:8000", "app.wsgi:application"]
+CMD ["gunicorn", "--workers=3", "--bind=0.0.0.0:8000", "app.wsgi:application"]

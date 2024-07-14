@@ -19,8 +19,8 @@ class ProductItem(models.Model):
     is_active = models.BooleanField(default=True)
     sale_start_dtm = models.DateTimeField("판매 시작일", null=True)
     sale_close_dtm = models.DateTimeField("판매 종료일", null=True)
-    item_quantity = models.PositiveBigIntegerField("재고")
-    sold_quantity = models.PositiveBigIntegerField("판매 수량", default=0)
+    item_quantity = models.PositiveIntegerField("재고")
+    sold_quantity = models.PositiveIntegerField("판매 수량", default=0)
     created_dtm = models.DateTimeField(auto_now_add=True)
     updated_dtm = models.DateTimeField(auto_now=True)
 

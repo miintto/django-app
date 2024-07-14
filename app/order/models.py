@@ -1,4 +1,5 @@
 from django.db import models, transaction
+from rest_framework.exceptions import ValidationError
 
 from app.auth.models import AuthUser
 from app.product.models import Product, ProductItem
@@ -35,7 +36,7 @@ class Order(models.Model):
         }
         for item in ProductItem.objects.filter(pk__in=item_map.keys()):
             if item.item_quantity <= item.sold_quantity:
-                raise ValueError("")
+                raise ValidationError("Out of stock!")
             item_map[item.pk]["price"] = item.price
 
         return OrderItem.objects.bulk_create(
